@@ -14,18 +14,22 @@ class BluetoothManager : NSObject(), CBCentralManagerDelegateProtocol, CBPeriphe
     val scannedDevices: StateFlow<List<CBPeripheral>> = _scannedDevices.asStateFlow()
     private var connectedPeripheral: CBPeripheral? = null
 
-    override fun init(): BluetoothManager {
-        super.init()
+    init {
         centralManager = CBCentralManager(delegate = this, queue = null)
         locationManager = CLLocationManager()
         locationManager.delegate = this
         requestPermissions()
-        return this
     }
 
     fun startScan() {
-        _scannedDevices.value = emptyList()
-        centralManager.scanForPeripheralsWithServices(null, null)
+        if (CLLocationManager.authorizationStatus() == kCLAuthorizationStatusAuthorizedWhenInUse ||
+            CLLocationManager.authorizationStatus() == kCLAuthorizationStatusAuthorizedAlways) {
+            _scannedDevices.value = emptyList()
+            centralManager.scanForPeripheralsWithServices(null, null)
+        } else {
+            println("Location permission not granted")
+            requestPermissions()
+        }
     }
 
     fun stopScan() {
