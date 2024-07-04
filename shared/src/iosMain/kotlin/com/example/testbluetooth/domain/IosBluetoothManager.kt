@@ -12,9 +12,9 @@ class BluetoothManager: NSObject(), CBCentralManagerDelegateProtocol, CBPeripher
     val scannedDevices: StateFlow<List<CBPeripheral>> = _scannedDevices.asStateFlow()
     private var connectedPeripheral: CBPeripheral? = null
 
-    override fun init() {
-        super.init()
+    override fun init(): BluetoothManager {
         centralManager = CBCentralManager(delegate = this, queue = null)
+        return this
     }
 
     fun startScan() {
