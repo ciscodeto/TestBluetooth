@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @SuppressLint("MissingPermission")
-class BluetoothLeController(context: Context) : ViewModel() {
+class AndroidBluetoothLeController(context: Context) : ViewModel() {
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
