@@ -23,12 +23,16 @@ class BluetoothLeController(context: Context) : ViewModel() {
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
-            _scannedDevices.value += device
+            if (!_scannedDevices.value.contains(device)) {
+                _scannedDevices.value = _scannedDevices.value + device
+            }
         }
         override fun onBatchScanResults(results: List<ScanResult>) {
             for (result in results) {
                 val device = result.device
-                _scannedDevices.value += device
+                if (!_scannedDevices.value.contains(device)) {
+                    _scannedDevices.value = _scannedDevices.value + device
+                }
             }
         }
         override fun onScanFailed(errorCode: Int) {
