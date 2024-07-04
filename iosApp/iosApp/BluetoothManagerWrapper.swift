@@ -4,12 +4,16 @@ import shared
 class BluetoothManagerWrapper: ObservableObject {
     private var bluetoothManager: BluetoothManager
 
-    @Published var scannedDevices: [CBPeripheral] = []
+    @Published var scannedDevices: [(name: String?, address: String)] = []
 
     init() {
         bluetoothManager = BluetoothManager().init()
         bluetoothManager.scannedDevices.collect { devices in
-            self.scannedDevices = devices as! [CBPeripheral]
+            self.scannedDevices = devices.map { device in
+                let name = device.name
+                let address = device.identifier.UUIDString
+                return (name, address)
+            }
         } completionHandler: { (throwable) in
             print("Error collecting scanned devices: \(throwable.localizedDescription)")
         }

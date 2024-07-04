@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreBluetooth
 
 struct ContentView: View {
     @StateObject var bluetoothManager = BluetoothManagerWrapper()
@@ -28,8 +27,13 @@ struct ContentView: View {
             }
             .padding()
 
-            List(bluetoothManager.scannedDevices, id: \.identifier) { device in
-                Text(device.name ?? "Unknown Device")
+            List(bluetoothManager.scannedDevices, id: \.address) { device in
+                VStack(alignment: .leading) {
+                    Text(device.name ?? "Unknown Device")
+                        .font(.headline)
+                    Text(device.address)
+                        .font(.subheadline)
+                }
             }
         }
     }

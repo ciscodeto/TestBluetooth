@@ -2,18 +2,24 @@ package com.example.testbluetooth.domain
 
 import platform.CoreBluetooth.*
 import platform.Foundation.*
+import platform.CoreLocation.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class BluetoothManager: NSObject(), CBCentralManagerDelegateProtocol, CBPeripheralDelegateProtocol {
+class BluetoothManager : NSObject(), CBCentralManagerDelegateProtocol, CBPeripheralDelegateProtocol, CLLocationManagerDelegateProtocol {
     private lateinit var centralManager: CBCentralManager
+    private lateinit var locationManager: CLLocationManager
     private val _scannedDevices = MutableStateFlow<List<CBPeripheral>>(emptyList())
     val scannedDevices: StateFlow<List<CBPeripheral>> = _scannedDevices.asStateFlow()
     private var connectedPeripheral: CBPeripheral? = null
 
     override fun init(): BluetoothManager {
+        super.init()
         centralManager = CBCentralManager(delegate = this, queue = null)
+        locationManager = CLLocationManager()
+        locationManager.delegate = this
+        requestPermissions()
         return this
     }
 
@@ -24,6 +30,10 @@ class BluetoothManager: NSObject(), CBCentralManagerDelegateProtocol, CBPeripher
 
     fun stopScan() {
         centralManager.stopScan()
+    }
+
+    private fun requestPermissions() {
+        locationManager.requestWhenInUseAuthorization()
     }
 
     override fun centralManagerDidUpdateState(central: CBCentralManager) {
@@ -72,6 +82,24 @@ class BluetoothManager: NSObject(), CBCentralManagerDelegateProtocol, CBPeripher
     ) {
         didDiscoverCharacteristicsForService.characteristics?.forEach { characteristic ->
             println("Discovered characteristic: ${(characteristic as CBCharacteristic).UUID}")
+        }
+    }
+
+    // CLLocationManagerDelegateProtocol
+    override fun locationManager(manager: CLLocationManager, didChangeAuthorizationStatus: CLAuthorizationStatus) {
+        when (didChangeAuthorizationStatus) {
+            kCLAuthorizationStatusAuthorizedAlways, kCLAuthorizationStatusAuthorizedWhenInUse -> {
+                println("Location access granted")
+            }
+            kCLAuthorizationStatusDenied, kCLAuthorizationStatusRestricted -> {
+                println("Location access denied/restricted")
+            }
+            kCLAuthorizationStatusNotDetermined -> {
+                println("Location access not determined")
+            }
+            else -> {
+                println("Unknown location access status")
+            }
         }
     }
 }
